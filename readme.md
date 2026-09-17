@@ -1,140 +1,216 @@
-# Agentic Python Debugger
+# Autonomous Cognitive Debugging Memory Architecture
 
-Status: In development
+Status: In active development
 
 ## Overview
 
-Agentic Python Debugger is a multi-prompt, retrieval-augmented generation (RAG) AI agent designed to help debug, understand, and generate Python code — with a focus on Django and Flask projects. The agent is intended to assist developers by combining automated static checks, targeted retrieval of project context (code, tests, docs), and large-language-model (LLM) prompts to propose diagnostics, fixes, and explanations.
+This project is a brain-driven debugging system for Python applications, built around an agentic orchestration layer that combines retrieval, reasoning, and execution context to diagnose software issues more intelligently than a passive static analyzer.
 
-## Goals
+At the center of the system is the Brain — a memory-aware control layer that coordinates short-term task execution, persistent knowledge, and contextual understanding across debugging sessions. The Brain is designed to manage state, prioritize work, retain relevant facts, and support iterative reasoning over time.
 
-- Speed up debugging by surfacing relevant code context and suggested fixes.
-- Provide concise, actionable explanations for errors and unexpected behavior.
-- Support iterative developer workflows (investigate → suggest → test → refine).
-- Integrate with common Python web frameworks (Django, Flask) and typical project layouts.
+The broader system integrates repository indexing, retrieval-augmented context gathering, and large-language-model prompting to support error analysis, root-cause investigation, and fix generation in real-world Python projects, especially Django and Flask applications.
 
-## Key features (planned / in progress)
+## Core Idea: The Brain
 
-- Multi-prompt orchestration to combine diagnostics, targeted code retrieval, and patch generation.
-- Retrieval-augmented context: index repository code, tests, and docs for focused LLM prompts.
-- Support for framework-specific analysis (Django/Flask routing, models, views).
-- Test-run integration to reproduce failures and collect stack traces for analysis.
-- Configurable LLM backend and vector store for embeddings/search.
-- CLI and programmatic interfaces for interactive and automated workflows.
+The Brain is the project’s central intelligence layer.
 
-## Architecture (high level)
+It is responsible for:
 
-- Indexing layer: extracts and indexes repository files (source, tests, docs) into a vector store.
-- Retriever: given an error, test failure, or developer query, returns a set of relevant source snippets.
-- Orchestrator / Agent: runs multiple prompts (diagnostics, explanation, patch generation), combining retriever results and tooling (linters, test runner).
-- LLM backend: any provider that supports text generation and embeddings (configurable).
-- Tooling integration: test runner (pytest), static analysis (flake8, mypy), and optional runtime instrumentation.
+- tracking active tasks and debugging work in short-term memory
+- maintaining session context and evolving project understanding
+- persisting useful facts and recurring patterns in long-term memory
+- coordinating task execution and state transitions across an investigation cycle
+- enabling an agentic workflow that can reason over code, tests, symptoms, and fixes
 
-## Supported frameworks
+This design is intended to move beyond simple prompt-response tools toward a more memory-augmented, stateful debugging agent that behaves more like an internal reasoning engine than a one-shot assistant.
 
-- Django (projects and apps)
+## Objectives
+
+- Build a debugging agent that can reason over repository context, failing tests, and execution signals.
+- Create a memory architecture that supports both real-time task management and long-term knowledge retention.
+- Reduce debugging latency by surfacing the most relevant code and diagnostic artifacts first.
+- Enable a structured loop of investigation, hypothesis formation, fix proposal, and validation.
+- Provide support for Python web frameworks commonly used in production environments, including Django and Flask.
+
+## Key Technical Features
+
+- Agentic multi-step orchestration for diagnosis and mitigation workflows
+- Retrieval-augmented context using indexed source files, tests, and documentation
+- Brain-based memory model with short-term execution state and long-term fact retention
+- Task lifecycle management for actionable debugging work
+- Framework-aware analysis for Django and Flask project structures
+- LLM integration for reasoning, explanation generation, and patch suggestion
+- Configurable vector-store and model backend
+- CLI and programmatic interfaces for interactive or automated debugging flows
+
+## High-Level Architecture
+
+- Brain layer: central memory and orchestration logic; manages active tasks, context, and persistent knowledge
+- Memory system:
+  - Short-term memory: volatile runtime state, task queue, current session context
+  - Long-term memory: persistent facts, patterns, and contextual knowledge across runs
+- Retrieval layer: indexes code, docs, and tests and retrieves relevant snippets based on error states or queries
+- Orchestrator / agent: coordinates reasoning steps, diagnostic prompts, and validation loops
+- LLM backend: configurable provider for generation and embeddings
+- Tooling integration: pytest, static analysis, and runtime instrumentation signals
+
+## Brain Memory Model
+
+The project uses a layered memory design inspired by agentic systems:
+
+- Short-term memory stores active objectives, open tasks, and transient session state.
+- Long-term memory retains durable facts that may help future debugging sessions.
+- Context updates enable incremental accumulation of understanding rather than stateless prompting.
+- Task tracking allows the system to maintain a queue of work, mark completions, and preserve operational continuity.
+
+This is one of the most important differentiators of the project: the ability to reason with memory instead of treating each interaction as isolated context.
+
+## Supported Frameworks
+
+- Django
 - Flask
 
-Support for other Python frameworks should be possible by adding framework-specific prompt/inspection modules.
+The architecture is designed to support additional Python frameworks through modular inspection and prompting components.
 
-## Getting started
+## Getting Started
 
-Prerequisites
+### Prerequisites
+
 - Python 3.8+ (3.10+ recommended)
-- Virtual environment tooling (venv, pipenv, or poetry)
-- An LLM provider account (e.g., OpenAI) and API key if you plan to use a hosted LLM
+- Virtual environment tooling such as venv, pipenv, or poetry
+- Access to an LLM provider and API key if using a hosted model
 
-Installation (example)
+### Installation
+
 1. Clone the repository:
+   ```bash
    git clone https://github.com/Akinfiresoye-Victor/agentic_python_debugger.git
+   ```
+
 2. Create and activate a virtual environment:
+   ```bash
    python -m venv .venv
-   source .venv/bin/activate  # macOS/Linux
-   .venv\Scripts\activate     # Windows
+   source .venv/bin/activate   # macOS/Linux
+   .venv\Scripts\activate      # Windows
+   ```
+
 3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
+   ```
 
-Configuration
-- Keep secrets out of source control and put them in a `.env` file or your environment.
-- Example `.env` variables (adjust for your implementation):
-  ```
-  # .env (example)
-  OPENAI_API_KEY=sk-xxx
-  LLM_MODEL=gpt-4o         # or another model name
-  EMBEDDINGS_MODEL=text-embedding-3
-  VECTOR_STORE_PATH=./vectorstore
-  DATABASE_URL=sqlite:///dev.db
-  LOG_LEVEL=INFO
-  ```
-- If you use a hosted vector DB (Pinecone, Weaviate, Milvus, etc.), configure connection details instead of `VECTOR_STORE_PATH`.
+### Configuration
 
-Usage (examples)
-- Run the agent in interactive mode (adjust entrypoint to your project structure):
-  python -m agentic_debugger.cli
-  or
-  python main.py --project-path /path/to/project --mode analyze --target-file path/to/file.py
+Keep secrets out of source control and store them in a `.env` file or a secure platform secret manager.
 
-- Analyze a failing test:
-  1. Run tests locally to reproduce failure:
-     pytest tests/my_test.py::test_something -q
-  2. Provide the failing test ID or stack trace to the agent (via CLI or programmatic API) to get diagnostics and suggested fixes.
+Example configuration:
 
-- Generate a patch (example conceptual flow):
-  1. Agent examines retriever results + failure context.
-  2. Agent proposes code changes as a patch file or diff.
-  3. Developer reviews and applies the patch.
+```env
+# .env (example)
+OPENAI_API_KEY=sk-xxx
+LLM_MODEL=gpt-4o
+EMBEDDINGS_MODEL=text-embedding-3
+VECTOR_STORE_PATH=./vectorstore
+DATABASE_URL=sqlite:///dev.db
+LOG_LEVEL=INFO
+```
 
-Running tests
-- If the project includes tests, run:
-  pytest -q
-- Add tests for new features and components (retriever, orchestrator, prompt templates, etc.).
+If you are using a hosted vector database such as Pinecone, Weaviate, or Milvus, configure the appropriate connection parameters instead of relying on a local vector store path.
 
-Development notes
+## Usage
 
-- Project layout suggestions:
-  - agentic_debugger/
-    - cli.py                # CLI entrypoint
-    - core/                 # orchestrator, prompt manager, agent logic
-    - retriever/            # indexing, embedding, vector store interface
-    - integrations/         # framework-specific helpers (django, flask)
-    - tests/                # automated tests
-    - requirements.txt
-    - README.md
+### Interactive debugging workflow
 
-- Logging: use structured logs and sensible default log level; make it configurable via env or CLI flags.
-- Prompt templates: keep prompt templates in separate files for easier tuning and testing.
+Run the system through the project entry point:
 
-Contributing
+```bash
+python -m agentic_debugger.cli
+```
 
-- Open an issue to discuss major changes or features first.
-- Fork the repository and open a pull request for contributions.
-- Follow existing code style and add tests for new functionality.
-- Document configuration and usage for new modules.
+or:
 
-Roadmap
+```bash
+python main.py --project-path /path/to/project --mode analyze --target-file path/to/file.py
+```
 
-- Core: robust retriever + agent orchestration
-- Integrations: deep Django & Flask inspection helpers
-- Testing: end-to-end workflows for reproducing and fixing errors
-- UX: a simple web UI or richer CLI to guide debugging sessions
+### Analyze a failing test
 
-Security and configuration
+1. Reproduce the error locally:
+   ```bash
+   pytest tests/my_test.py::test_something -q
+   ```
+2. Pass the failing test or stack trace to the agent for contextual analysis and remediation guidance.
 
-- Do not commit secrets (API keys, service credentials).
-- Use .env or platform secret managers for sensitive values.
-- Sanitize any source code or environment content before sending to third-party LLM services if privacy is a concern.
+### Generate a patch
 
-License
+1. The Brain retrieves relevant repository context and failure metadata.
+2. The agent synthesizes an explanation and candidate fix.
+3. The developer reviews the proposed patch and applies it to the codebase.
 
-- No license has been specified. Add a LICENSE file (for example, MIT or Apache-2.0) if you want to permit public use and contributions.
+## Running Tests
 
-Contact
+If the project includes automated tests, run the suite with:
+
+```bash
+pytest -q
+```
+
+New modules or behavioral changes should include focused tests for memory flow, retrieval logic, orchestration behavior, and integration boundaries.
+
+## Development Notes
+
+Suggested project structure:
+
+```text
+agentic_debugger/
+├── cli.py                # CLI entry point
+├── core/                 # Orchestration and reasoning logic
+├── brain/                # Memory model, task queue, and context state
+├── retriever/            # Indexing, embeddings, and vector search
+├── integrations/         # Django and Flask framework helpers
+├── tests/                # Automated validation
+├── requirements.txt
+├── README.md
+```
+
+- Use structured logging for observability and debugging.
+- Keep prompt templates isolated for cleaner experimentation and tuning.
+- Maintain clear boundaries between retrieval, reasoning, memory, and execution layers.
+- Treat the Brain as the primary architectural abstraction around which the agent is built.
+
+## Contributing
+
+- Open an issue to discuss major architectural or feature changes before implementation.
+- Fork the repository and submit a pull request for review.
+- Follow the existing coding standards and include tests for new functionality.
+- Document configuration and usage changes when introducing new modules or capabilities.
+
+## Roadmap
+
+- Core memory and orchestration improvements for the Brain
+- Deeper Django and Flask inspection capabilities
+- Stronger retrieval pipelines and code-context ranking
+- End-to-end validation workflows for bug reproduction and fix verification
+- Improved CLI and developer tooling for interactive debugging sessions
+
+## Security and Configuration
+
+- Do not commit secrets such as API keys or credentials.
+- Use `.env` files or a secure secret manager for sensitive values.
+- Sanitize source code and environment content before sending it to third-party LLM providers when privacy is a concern.
+
+## License
+
+No license has been specified yet. Consider adding a LICENSE file such as MIT or Apache-2.0 if you intend to support wider public use and contributions.
+
+## Contact
 
 - Repository: https://github.com/Akinfiresoye-Victor/agentic_python_debugger
-- For feature requests or issues, open an issue in the repository.
+- For feature requests, bug reports, or collaboration, open an issue in the repository.
 
-Acknowledgements / references
+## References
 
-- Retrieval-augmented generation (RAG) patterns
-- LLM prompt engineering best practices
-- Standard Python testing and linting tools (pytest, flake8, mypy)
+- Retrieval-augmented generation (RAG)
+- Agentic memory systems and stateful reasoning architectures
+- LLM prompt engineering and tool-augmented workflows
+- Python testing, linting, and validation tooling such as pytest, flake8, and mypy
