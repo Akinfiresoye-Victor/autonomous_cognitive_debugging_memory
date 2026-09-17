@@ -23,7 +23,7 @@ for task in tasks:
 # agent_brain.split_input(id=4, description="Wait for the bread to toast until it automatically pops up.")
 # agent_brain.split_input(id=5, description="Carefully remove the hot toast from the slots.")
 # agent_brain.split_input(id=6, description="Spread your favorite toppings like butter or jam while it is still warm.")
-print(len(agent_brain.get_full_state()["current_conversation"]))
+print(agent_brain.get_full_state()["current_conversation"])
 
 
 # for _ in range(6):
