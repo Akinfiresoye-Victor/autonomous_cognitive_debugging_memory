@@ -52,7 +52,6 @@ class ShortTermMemory:
         self.session_context = {}
         self.filepath = filepath
         self._next_id = 1          # monotonic — never reused, never collides
-        self._lock = threading.Lock()
         self._load()
 
     def _load(self):
@@ -93,17 +92,17 @@ class ShortTermMemory:
         """
         if not descriptions:
             return []
-        with self._lock:
-            created = []
-            for description in descriptions:
-                task = {
-                    "id": self._next_id,
-                    "description": description,
-                    "status": False,
-                }
-                self.current_buffer.append(task)
-                created.append(task)
-                self._next_id += 1  # always advances, never reused
+        
+        created = []
+        for description in descriptions:
+            task = {
+                "id": self._next_id,
+                "description": description,
+                "status": False,
+            }
+            self.current_buffer.append(task)
+            created.append(task)
+            self._next_id += 1  # always advances, never reused
             self._save()
             return created
 
@@ -116,27 +115,30 @@ class ShortTermMemory:
         return self.current_buffer[0] if self.current_buffer else None
 
     def mark_task_completed(self):
-        with self._lock:
-            if not self.current_buffer:
-                return None
-            task = self.current_buffer.popleft()  # O(1) — deques pop from
-            task["status"] = True                  # the left end in O(1),
-            self.completed_buffer.add(task["id"])  # unlike a plain list
-            self._save()
-            return task
+        if not self.current_buffer:
+            return None
+        task = self.current_buffer.popleft()  # O(1) — deques pop from
+        task["status"] = True                  # the left end in O(1),
+        self.completed_buffer.add(task["id"])  # unlike a plain list
+        self._save()
+        return task
 
     def clear(self):
-        with self._lock:
-            self.current_buffer.clear()
-            self.completed_buffer.clear()
-            self.session_context.clear()
-            self._next_id = 1
-            self._save()
+        self.current_buffer.clear()
+        self.completed_buffer.clear()
+        self.session_context.clear()
+        self._next_id = 1
+        self._save()
+
+
+
 
     def update_context(self, **values):
-        with self._lock:
-            self.session_context.update(values)
-            self._save()
+        self.session_context.update(values)
+        self._save()
+
+
+
 
 
 class LongTermMemory:
