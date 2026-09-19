@@ -1,0 +1,26 @@
+1. Simple
+Just start the django server for the blog_project, it should already be set up.
+
+2. Medium
+Build me a Django app called "library" with a Book model (title, author, published_date) and a Member model (name, email), register both in admin, then run migrations.
+
+3. Regression test
+I just got a job to build a Django website for a car brand — users, staff, admins, mechanics, and more. It's an all-in-one site the brand will use to manage their business. Set the project up so I can start coding. For the apps you create, write the views with placeholder logic — for example the users app should have a homepage view and a buy-car view. Create the database models too. Don't take shortcuts, keep the project structured, and make sure the urls are well organized. Run the server for me when you're done.
+
+4. django lookup test
+Add a Django signal to the library app so that whenever a Book is deleted, a log entry is created automatically.
+
+5. update test
+Add a "Contact" page to the church_website project with a simple form view and a template.
+
+6. uncompleted prompt
+Add user authentication to the estate_web project.
+
+7. memory test
+Create a Django app called "reviews" with a Review model (rating, comment).
+
+Now add a ForeignKey from Review to the Book model in the library app, and register Review in admin.
+
+8. stress test
+Find every place in the estate_web project where a model is missing a __str__ method and add one to each.
+

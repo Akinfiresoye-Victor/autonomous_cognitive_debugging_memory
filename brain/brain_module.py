@@ -1,42 +1,3 @@
-"""
-Fixed version of brain_module.py
-
-Changes from your original, and why:
-
-1. Monotonic `_next_id` counter (persisted to disk) instead of deriving the
-   next ID from `len(current_buffer)`. Your old code computed the next ID
-   from the number of *pending* tasks — but completed tasks get removed
-   from that buffer, so IDs got reused and silently collided. A counter
-   that only ever increases can never repeat an ID. This is O(1) per task
-   (one increment) and it's also correct, which the old O(1)-but-wrong
-   version wasn't.
-
-2. `create_tasks_batch()` replaces calling `create_tasks()` in a loop.
-   Your old code called `self._save()` (a full JSON file rewrite) once
-   PER TASK. If the orchestrator hands you 12 tasks, that was 12 disk
-   writes for one logical operation. Now it's exactly 1 write for the
-   whole batch — this is the main latency fix here.
-
-3. `threading.Lock` around every state mutation. Your main script already
-   imports `threading`, implying you expect some concurrency (e.g. retries,
-   fallback models running in parallel, or a future async version). Without
-   a lock, two threads calling create/complete at the same time can corrupt
-   `current_buffer` or lose a write. The lock makes each mutation atomic —
-   it costs almost nothing when you're single-threaded and saves you from a
-   very hard-to-debug race condition the moment you're not.
-
-4. Removed `_process_tasks` — it was dead code (never called anywhere) that
-   also bypassed ID assignment entirely, which would have caused the same
-   collision problem as issue #1 if it were ever wired in.
-
-5. Fixed the `working_memeory` typo -> `working_memory`. If your main
-   script only ever calls Brain's public methods (get_next_task,
-   update_context, etc.) rather than reaching into
-   `brain.working_memeory.whatever` directly, this rename is safe. Grep
-   your codebase for `working_memeory` before dropping this in, just in
-   case something reaches in directly.
-"""
-
 from collections import deque
 import json
 import os
@@ -102,9 +63,9 @@ class ShortTermMemory:
             }
             self.current_buffer.append(task)
             created.append(task)
-            self._next_id += 1  # always advances, never reused
-            self._save()
-            return created
+            self._next_id += 1 
+        self._save()
+        return created
 
     def list_tasks(self):
         return list(self.current_buffer)
